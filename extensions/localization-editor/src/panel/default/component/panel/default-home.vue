@@ -820,10 +820,10 @@ export default {
         /** 语言编译面板点击了翻译 */
         async function onTranslateClick(index: number) {
             const panelTranslateData = panelTranslateDataList.value[index].value;
-            if (!panelTranslateData?.providerTag) {
+            /*if (!panelTranslateData?.providerTag) {
               eventBus.emit('onCustomError', new CustomError(MessageCode.PROVIDER_TAG_NOT_FOUND));
               return;
-            }
+            }*/
             emit('translate', panelTranslateData.bcp47Tag);
         }
 
