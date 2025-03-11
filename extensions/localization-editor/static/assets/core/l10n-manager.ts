@@ -3,7 +3,7 @@ import { createInstance, i18n, InitOptions as I18NextInitOptions } from 'i18next
 // @ts-ignore
 import { EDITOR, BUILD, PREVIEW } from 'cc/env';
 // @ts-ignore
-import { game, assetManager } from 'cc';
+import { game, assetManager,sys } from 'cc';
 import type { L10nOptions, ResourceData, L10nKey, L10nValue, ResourceItem } from './l10n-options';
 import {
     DateTimeFormatOptions,
@@ -50,6 +50,17 @@ export class L10nManager {
         return this._intl?.isInitialized ?? false;
     }
 
+    private languageCodeToBCP47LanguageTag(languageCode: string) {
+        let language = languageCode.toLowerCase();
+        
+        if (language === "zh-tw") {
+            return "zh-Hant";
+        }   else if (language.startsWith("en")) {
+            return "en";
+        } 
+        return "zh-Hans";
+      }
+
     public async createIntl(options: L10nOptions) {
         const reloadResult = await this.reloadResourceData();
         if (!reloadResult) {
@@ -58,13 +69,17 @@ export class L10nManager {
         this._options = options;
         this._intl = createInstance();
         let localStorageLanguage: string | undefined = undefined;
+        const sysLang = sys.languageCode;
+        const languageTag = this.languageCodeToBCP47LanguageTag(sysLang)
+        console.log("==========syslang:"+sysLang+",tag:"+languageTag);
         if (BUILD && !PREVIEW) {
             localStorageLanguage = localStorage.getItem(
                 l10n['_options'].localStorageLanguageKey ?? L10nManager.LOCAL_STORAGE_LANGUAGE_KEY,
             );
             localStorageLanguage = this.checkLanguage(localStorageLanguage);
         }
-        const defaultLanguage = localStorageLanguage ?? options.language ?? this.resourceList.defaultLanguage;
+        const defaultLanguage = localStorageLanguage ?? options.language ?? this.resourceList.languages.includes(languageTag) ? languageTag :this.resourceList.defaultLanguage;
+        console.log("==========lng:"+defaultLanguage);
         const fallbackLanguage = options.fallbackLanguage ?? this.resourceList.fallbackLanguage;
         const resources = options.resources ?? this.resourceBundle;
 
