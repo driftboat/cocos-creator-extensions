@@ -220,6 +220,7 @@ export default class MainThread implements IMainThread {
      * @param locale 当locale为空时返回本地开发语言的配置
      */
     getLanguageConfig = (locale?: Intl.BCP47LanguageTag): LanguageConfig | undefined => {
+        console.log("===========getLanguageConfig, local =" + locale)
         if (locale) {
             return this.translateDataSourceService.getLanguageConfig(locale);
         } else {
