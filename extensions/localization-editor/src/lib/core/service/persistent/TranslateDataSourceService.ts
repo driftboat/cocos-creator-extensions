@@ -335,7 +335,7 @@ export default class TranslateDataSourceService implements IPersistentService<Tr
             if (indexData.items.has(key)) {
                 item = indexData.items.get(key)!;
             } else if (key.length > 0) {
-                item = new TranslateItem(key, '', TranslateItemType.Text, false, [association]);
+                item = new TranslateItem(key, '', TranslateItemType.Text, false, []);
             } else {
                 return;
             }
