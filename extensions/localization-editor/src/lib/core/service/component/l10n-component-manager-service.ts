@@ -3,7 +3,7 @@ import { join } from 'path';
 module.paths.push(join(Editor.App.path, 'node_modules'));
 import 'reflect-metadata';
 
-import { Component, js } from 'cc';
+import { Component, js,cclegacy } from 'cc';
 import { singleton } from 'tsyringe';
 import MainIPC from '../../ipc/MainIPC';
 import type { L10nLabel } from '../../../../../@types/runtime/l10n';
@@ -26,6 +26,9 @@ export default class L10nComponentManagerService {
     _onComponentAdd: typeof this.onComponentAdd = this.onComponentAdd.bind(this);
     _onComponentRemoved: typeof this.onComponentRemoved = this.onComponentRemoved.bind(this);
     async onComponentAdd(component: Component) {
+        if(cclegacy.GAME_VIEW){
+            return
+        }
         const I18nLabelClass: typeof L10nLabel | null = js.getClassByName(SceneProcessor.L10nLabelComponentName) as any as typeof L10nLabel;
         if (I18nLabelClass && component instanceof I18nLabelClass) {
             const key = component.key;
@@ -36,6 +39,9 @@ export default class L10nComponentManagerService {
         }
     }
     async onComponentRemoved(component: Component) {
+        if(cclegacy.GAME_VIEW){
+            return
+        }
         const I18nLabelClass: typeof L10nLabel | null = js.getClassByName(SceneProcessor.L10nLabelComponentName) as any as typeof L10nLabel;
         if (I18nLabelClass && component instanceof I18nLabelClass) {
             const key = component.key;
