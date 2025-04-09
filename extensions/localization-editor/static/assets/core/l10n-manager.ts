@@ -50,17 +50,25 @@ export class L10nManager {
         return this._intl?.isInitialized ?? false;
     }
 
-    private languageCodeToBCP47LanguageTag(languageCode: string) {
+    languageCodeToBCP47LanguageTag(languageCode: string) {
         let language = languageCode.toLowerCase();
-        
-        if (language === "zh-tw") {
-            return "zh-Hant";
-        }   else if (language.startsWith("en")) {
-            return "en";
+        language = language.replace(/_/g, '-');
+        let languageTag = this.resourceList.defaultLanguage;
+        if (language === "zh-tw" || language === "zh-hk" || language === "zh-mo") {
+            languageTag = "zh-Hant";
+            if(!this.resourceList.languages.includes(languageTag)){
+                languageTag = "zh-Hans";
+            }
+        }   else if (language.startsWith("zh")) {
+            languageTag = "zh-Hans";
+            if(!this.resourceList.languages.includes(languageTag)){
+                languageTag = "zh-Hant";
+            }
         } 
-        return "zh-Hans";
+        
+        return this.resourceList.languages.includes(languageTag) ? languageTag :this.resourceList.defaultLanguage;
       }
-
+      
     public async createIntl(options: L10nOptions) {
         const reloadResult = await this.reloadResourceData();
         if (!reloadResult) {
@@ -72,13 +80,14 @@ export class L10nManager {
         const sysLang = sys.languageCode;
         const languageTag = this.languageCodeToBCP47LanguageTag(sysLang)
         console.log("==========syslang:"+sysLang+",tag:"+languageTag);
-        if (BUILD && !PREVIEW) {
+        if (!EDITOR) {
             localStorageLanguage = localStorage.getItem(
                 l10n['_options'].localStorageLanguageKey ?? L10nManager.LOCAL_STORAGE_LANGUAGE_KEY,
             );
             localStorageLanguage = this.checkLanguage(localStorageLanguage);
+            console.log("==========storelng:"+localStorageLanguage);
         }
-        const defaultLanguage = localStorageLanguage ?? options.language ?? this.resourceList.languages.includes(languageTag) ? languageTag :this.resourceList.defaultLanguage;
+        const defaultLanguage = localStorageLanguage ?? options.language ?? (this.resourceList.languages.includes(languageTag) ? languageTag :this.resourceList.defaultLanguage);
         console.log("==========lng:"+defaultLanguage);
         const fallbackLanguage = options.fallbackLanguage ?? this.resourceList.fallbackLanguage;
         const resources = options.resources ?? this.resourceBundle;
